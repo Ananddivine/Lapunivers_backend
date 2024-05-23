@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const cors = require('cors'); 
+const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5001;
 
 app.use(cors());
 app.use(express.static('public'));
-app.use(bodyParser.urlencoded({ extended: true })); 
+app.use(bodyParser.urlencoded({ extended: true }));
 
 const storage = multer.diskStorage({
     destination: function (_req, _file, cb) {
@@ -23,6 +23,10 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+
+app.get('/', (req, res) => {
+    res.send('Server is running!');
+});
 
 app.get('/files', (_req, res) => {
     const uploadDir = process.env.UPLOAD_DIR || 'public/upload/';
