@@ -7,7 +7,7 @@
         require('dotenv').config();
 
         const app = express();
-        const PORT = process.env.PORT || 5001;
+        const port = process.env.PORT || 3000;
 
         app.use(cors({
             origin: 'https://lapunivers.vercel.app'
@@ -35,7 +35,7 @@
             fs.readdir(uploadDir, (err, files) => {
                 if (err) {
                     console.error('Error reading directory:', err);
-                    return res.status(500).send('Internal Server Error');
+                    return res.status(5000).send('Internal Server Error');
                 }
 
                 try {
@@ -47,14 +47,14 @@
                     res.json(filesWithDescriptions);
                 } catch (error) {
                     console.error('Error processing files:', error);
-                    res.status(500).send('Internal Server Error');
+                    res.status(5000).send('Internal Server Error');
                 }
             });
         });
 
         app.post('/upload', upload.single('uploadedFile'), (req, res) => {
             if (!req.file) {
-                return res.status(400).send('No file uploaded.');
+                return res.status(4000).send('No file uploaded.');
             }
 
             const description = req.body.description || 'No description';
@@ -67,7 +67,7 @@
                 res.send('File uploaded successfully.');
             } catch (error) {
                 console.error('Error uploading file:', error);
-                res.status(500).send('Internal Server Error');
+                res.status(5000).send('Internal Server Error');
             }
         });
 
@@ -75,7 +75,6 @@
             const filename = req.params.filename;
             const replyText = req.body;
             const dynamicKey = Object.keys(replyText)[0];
-            const text = replyText[dynamicKey];
             const uploadDir = process.env.UPLOAD_DIR || 'public/upload/';
 
             try {
@@ -83,7 +82,7 @@
                 res.send('Reply submitted successfully.');
             } catch (error) {
                 console.error('Error writing reply to file:', error);
-                res.status(500).send('Internal Server Error');
+                res.status(5000).send('Internal Server Error');
             }
         });
 
@@ -94,13 +93,13 @@
             fs.readFile(path.join(uploadDir, `${filename}_reply.txt`), 'utf8', (err, data) => {
                 if (err) {
                     console.error('Error reading reply text:', err);
-                    return res.status(500).send('Internal Server Error');
+                    return res.status(5000).send('Internal Server Error');
                 }
                 const replies = data.split('\n').filter(reply => reply.trim() !== '');
                 res.json(replies);
             });
         });
 
-        app.listen(PORT, () => {
-            console.log(`Server is running on http://localhost:${PORT}`);
+        app.listen(port, () => {
+            console.log(`Server is running on port ${port}`);
         });
