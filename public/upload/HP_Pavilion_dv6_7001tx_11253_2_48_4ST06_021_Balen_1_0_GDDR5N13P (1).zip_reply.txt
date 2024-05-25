@@ -1,0 +1,3 @@
+DIVINE :-  ff
+undefined
+DIVINE :-  qwff
