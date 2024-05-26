@@ -6,9 +6,14 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5001;
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000', // Allow requests from this origin
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true
+}));
+
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -21,7 +26,7 @@ const storage = multer.diskStorage({
     }
 });
 
-app.get('/files', (_req, res) => {
+app.get('/files', (req, res) => {
     fs.readdir('public/upload/', (err, files) => {
         if (err) {
             console.error('Error reading directory:', err);
@@ -33,7 +38,6 @@ app.get('/files', (_req, res) => {
             const description = fs.existsSync(descriptionPath) ? fs.readFileSync(descriptionPath, 'utf8') : '';
             const fileUrl = `${req.protocol}://${req.get('host')}/upload/${file}`;
             return { filename: file, description, url: fileUrl };
-          
         });
 
         res.json(filesWithDescriptions);
@@ -62,7 +66,6 @@ app.post('/upload', upload.single('uploadedFile'), (req, res) => {
 
 app.post('/files/:filename/replies', (req, res) => {
     let filename = req.params.filename;
-    // Remove .txt if it exists at the end of the filename
     if (filename.endsWith('.txt')) {
         filename = filename.slice(0, -4);
     }
@@ -91,13 +94,11 @@ app.post('/files/:filename/replies', (req, res) => {
 
 app.get('/files/:filename/replies', (req, res) => {
     let filename = req.params.filename;
-    // Remove .txt if it exists at the end of the filename
     if (filename.endsWith('.txt')) {
         filename = filename.slice(0, -4);
     }
     const replyFilePath = path.join('public/upload/', `${filename}_reply.txt`);
 
-    // Ensure the correct path is being used without any unwanted suffixes
     console.log('Fetching replies for:', replyFilePath);
 
     fs.readFile(replyFilePath, 'utf8', (err, data) => {
