@@ -31,7 +31,9 @@ app.get('/files', (_req, res) => {
         const filesWithDescriptions = files.filter(file => !file.endsWith('_reply.txt')).map(file => {
             const descriptionPath = path.join('public/upload/', `${file}.txt`);
             const description = fs.existsSync(descriptionPath) ? fs.readFileSync(descriptionPath, 'utf8') : '';
-            return { filename: file, description };
+            const fileUrl = `${req.protocol}://${req.get('host')}/upload/${file}`;
+            return { filename: file, description, url: fileUrl };
+          
         });
 
         res.json(filesWithDescriptions);
