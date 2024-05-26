@@ -10,10 +10,10 @@ const PORT = 5000; // Change this to the desired port number
  
 
 app.use(cors({
-    origin: 'https://lapunivers.vercel.app/', 
+    origin: 'https://lapunivers.vercel.app', // Remove the trailing slash
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true
-  }));
+}));
   
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true })); // Add this line
