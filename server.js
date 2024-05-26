@@ -10,7 +10,7 @@ const PORT = 5000; // Change this to the desired port number
  
 
 app.use(cors({
-    origin: 'https://lapunivers.vercel.app', // Remove the trailing slash
+    origin: 'http://localhost:3000', 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true
 }));
