@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: 'https://lapunivers.vercel.app', // Allow requests from this origin
+  origin: 'https://lapunivers.vercel.app', 
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true
 }));
@@ -63,7 +63,6 @@ app.post('/upload', upload.single('uploadedFile'), (req, res) => {
 
     res.send('File uploaded successfully.');
 });
-
 app.post('/files/:filename/replies', (req, res) => {
     let filename = req.params.filename;
     if (filename.endsWith('.txt')) {
@@ -81,10 +80,19 @@ app.post('/files/:filename/replies', (req, res) => {
     console.log('Requested Reply text:', dynamicKey);
 
     try {
-        const replyFilePath = path.join('public/upload/', `${filename}_reply.txt`);
-        console.log('Reply file path being used:', replyFilePath);
-        fs.appendFileSync(replyFilePath, `${dynamicKey}\n`);
-        console.log('File path:', replyFilePath, `${dynamicKey}\n`);
+        const replyFilePath = path.join('public/upload/', `${filename}_replies.json`);
+        let replies = [];
+        if (fs.existsSync(replyFilePath)) {
+            // Read existing replies
+            const existingReplies = fs.readFileSync(replyFilePath, 'utf8');
+            replies = JSON.parse(existingReplies);
+        }
+        // Append the new reply
+        replies.push({ user: dynamicKey, text });
+
+        // Write the replies back to the file
+        fs.writeFileSync(replyFilePath, JSON.stringify(replies, null, 2));
+        console.log('File path:', replyFilePath);
         res.send('Reply submitted successfully.');
     } catch (error) {
         console.error('Error writing reply to file:', error);
@@ -97,20 +105,20 @@ app.get('/files/:filename/replies', (req, res) => {
     if (filename.endsWith('.txt')) {
         filename = filename.slice(0, -4);
     }
-    const replyFilePath = path.join('public/upload/', `${filename}_reply.txt`);
+    const replyFilePath = path.join('public/upload/', `${filename}_replies.json`);
 
     console.log('Fetching replies for:', replyFilePath);
 
-    fs.readFile(replyFilePath, 'utf8', (err, data) => {
-        if (err) {
-            console.error('Error reading reply text:', err);
-            return res.status(500).send('Internal Server Error');
+    try {
+        if (fs.existsSync(replyFilePath)) {
+            const replies = fs.readFileSync(replyFilePath, 'utf8');
+            res.json(JSON.parse(replies));
+        } else {
+            // If no replies file exists, send an empty array
+            res.json([]);
         }
-        const replies = data.split('\n').filter(reply => reply.trim() !== '');
-        res.json(replies);
-    });
-});
-
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    } catch (error) {
+        console.error('Error reading reply text:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
