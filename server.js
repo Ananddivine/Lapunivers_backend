@@ -64,6 +64,18 @@ app.post('/upload', upload.single('uploadedFile'), (req, res) => {
     res.send('File uploaded successfully.');
 });
 
+// Define endpoint for deleting a file
+app.delete('/files/:filename', (req, res) => {
+    const filename = req.params.filename;
+    fs.unlink(path.join('public/upload/', filename), err => {
+        if (err) {
+            console.error('Error deleting file:', err);
+            return res.status(500).send('Internal Server Error');
+        }
+        res.send('File deleted successfully.');
+    });
+});
+
 app.post('/files/:filename/replies', (req, res) => {
     let filename = req.params.filename;
     if (filename.endsWith('.txt')) {
