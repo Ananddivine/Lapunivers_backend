@@ -122,3 +122,7 @@ app.get('/files/:filename/replies', (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
