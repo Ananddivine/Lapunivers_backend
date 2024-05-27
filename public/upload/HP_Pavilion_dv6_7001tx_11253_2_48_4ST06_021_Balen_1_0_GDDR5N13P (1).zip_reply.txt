@@ -1,2 +1,0 @@
-DIVINE :-  hi
-DIVINE :-  hello

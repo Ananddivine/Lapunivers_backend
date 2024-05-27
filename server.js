@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: 'https://lapunivers.vercel.app',
+  origin: 'http://localhost:3000',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true
 }));
@@ -89,6 +89,23 @@ app.post('/files/:filename/replies', (req, res) => {
   }
 });
 
+app.put('/files/:filename/replies', (req, res) => {
+  let filename = req.params.filename;
+  if (filename.endsWith('.txt')) {
+    filename = filename.slice(0, -4);
+  }
+  const replyFilePath = path.join('public/upload/', `${filename}_reply.txt`);
+  const updatedReply = req.body.updatedReply;
+
+  try {
+    fs.writeFileSync(replyFilePath, `${updatedReply}\n`);
+    res.send('Reply updated successfully.');
+  } catch (error) {
+    console.error('Error updating reply file:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 app.get('/files/:filename/replies', (req, res) => {
   let filename = req.params.filename;
   if (filename.endsWith('.txt')) {
@@ -107,6 +124,71 @@ app.get('/files/:filename/replies', (req, res) => {
     res.json(replies);
   });
 });
+
+// Delete a file
+app.delete('/files/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join('public/upload/', filename);
+  const descriptionPath = path.join('public/upload/', `${filename}.txt`);
+  const replyPath = path.join('public/upload/', `${filename}_reply.txt`);
+
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      console.error('Error deleting file:', err);
+      return res.status(500).send('Internal Server Error');
+    }
+
+    fs.unlink(descriptionPath, (err) => {
+      if (err && err.code !== 'ENOENT') {
+        console.error('Error deleting description file:', err);
+        return res.status(500).send('Internal Server Error');
+      }
+
+      fs.unlink(replyPath, (err) => {
+        if (err && err.code !== 'ENOENT') {
+          console.error('Error deleting reply file:', err);
+          return res.status(500).send('Internal Server Error');
+        }
+
+        res.send('File deleted successfully.');
+      });
+    });
+  });
+});
+
+// Update a file description
+app.put('/files/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const newDescription = req.body.updatedContent;
+  const descriptionPath = path.join('public/upload/', `${filename}.txt`);
+
+  fs.writeFile(descriptionPath, newDescription, (err) => {
+    if (err) {
+      console.error('Error updating description:', err);
+      return res.status(500).send('Internal Server Error');
+    }
+
+    res.send('Description updated successfully.');
+  });
+});
+
+// Delete replies for a file
+app.delete('/files/:filename/replies', (req, res) => {
+  let filename = req.params.filename;
+  if (filename.endsWith('.txt')) {
+    filename = filename.slice(0, -4);
+  }
+  const replyFilePath = path.join('public/upload/', `${filename}_reply.txt`);
+
+  fs.unlink(replyFilePath, (err) => {
+    if (err) {
+      console.error('Error deleting reply file:', err);
+      return res.status(500).send('Internal Server Error');
+    }
+    res.send('Reply file deleted successfully.');
+  });
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
