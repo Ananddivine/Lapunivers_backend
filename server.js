@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: 'https://lapunivers.vercel.app', 
+  origin: 'https://lapunivers.vercel.app',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true
 }));
@@ -49,6 +49,7 @@ app.get('/files', (req, res) => {
   });
 });
 
+
 const upload = multer({ storage });
 
 app.post('/upload', upload.single('uploadedFile'), (req, res) => {
@@ -69,6 +70,7 @@ app.post('/upload', upload.single('uploadedFile'), (req, res) => {
 
   res.send('File uploaded successfully.');
 });
+
 
 app.post('/files/:filename/replies', (req, res) => {
   let filename = req.params.filename;
@@ -195,9 +197,6 @@ app.delete('/files/:filename/replies', (req, res) => {
 });
 
 
-app.get('/ping', (_req, res) => {
-  res.send('Pong');
-});
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
