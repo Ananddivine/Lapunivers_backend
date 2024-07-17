@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Middleware
 app.use(cors({
   origin: 'https://lapunivers.vercel.app',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -18,14 +19,24 @@ app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Ensure upload directory exists
+const uploadDir = path.join(__dirname, 'public', 'upload');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Multer storage configuration
 const storage = multer.diskStorage({
   destination: function (_req, _file, cb) {
-    cb(null, 'public/upload/');
+    cb(null, uploadDir);
   },
   filename: function (_req, file, cb) {
     cb(null, file.originalname);
   }
 });
+
+// File handling routes...
+
 
 app.get('/files', (req, res) => {
   fs.readdir('public/upload/', (err, files) => {
