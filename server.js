@@ -194,6 +194,15 @@ app.delete('/files/:filename/replies', (req, res) => {
   });
 });
 
+<<<<<<< HEAD
+=======
+
+app.get('/ping', (_req, res) => {
+  res.send('Pong');
+});
+
+
+>>>>>>> afc2b23518314638e1a4794405d7c788fbeaf24c
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
