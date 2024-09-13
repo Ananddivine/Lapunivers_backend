@@ -15,7 +15,8 @@ const PORT = process.env.PORT || 5000;
 
 // CORS configuration
 const allowedOrigins = [
-  "https://lapunivers.vercel.app"
+  "https://lapunivers.vercel.app",
+  "https://lapunivers-adminpanel.vercel.app"
   ];
 
 app.use(cors({
