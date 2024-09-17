@@ -9,6 +9,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -31,7 +32,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'auth-token'],
   credentials: true,
   optionsSuccessStatus: 200
-}));app.use(express.json());
+}));
+
+app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -660,12 +663,45 @@ LapUniverse Security Team`,
 });
 
 
+// Admin Login Route (No middleware, public)
+app.post('/adminlogin', async (req, res) => {
+  const { email, password } = req.body;
 
+  try {
+    if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
+      const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      res.json({ success: true, token });
+    } else {
+      res.json({ success: false, message: 'Invalid Credentials' });
+    }
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
 
+// Middleware to verify token
+const verifyToken = (req, res, next) => {
+  const token = req.headers['authorization'];
 
+  if (!token) {
+    return res.status(403).json({ success: false, message: 'No token provided' });
+  }
 
+  const bearerToken = token.split(' ')[1]; // Extract the token part
 
+  jwt.verify(bearerToken, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ success: false, message: 'Failed to authenticate token' });
+    }
+    req.user = decoded; // Store decoded token data in req.user
+    next();
+  });
+};
 
+// Protected route - Admin Dashboard
+app.get('/admin/dashboard', verifyToken, (req, res) => {
+  res.json({ success: true, message: 'Welcome to the admin dashboard', user: req.user });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
