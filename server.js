@@ -97,7 +97,7 @@ app.post("/upload", upload.array('product_images', 4), (req, res) => {
   }
 
   // Construct the URLs for the uploaded images
-  const imageUrls = req.files.map(file => `http://localhost:5000/images/${file.filename}`);
+  const imageUrls = req.files.map(file => `https://lapuniversbackend-production.up.railway.app/images/${file.filename}`);
 
   res.json({
       success: true,
